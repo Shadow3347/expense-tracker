@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - ExpenseTracker</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#00B4B4", secondary: "#8A2BE2" },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #F8FAFC;
+      }
+      .nav-item {
+        @apply flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-primary/5 hover:text-primary transition-all duration-300;
+      }
+      .nav-item.active {
+        @apply bg-primary/10 text-primary font-medium;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside class="w-64 border-r border-gray-200 px-4 py-6">
+        <div class="mb-8">
+          <a href="#" class="text-2xl font-['Pacifico'] text-gray-900">logo</a>
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="nav-item active">
+            <div class="w-5 h-5 flex items-center justify-center">
+              <i class="ri-dashboard-line"></i>
+            </div>
+            Dashboard
+          </a>
+          <a href="#" class="nav-item">
+            <div class="w-5 h-5 flex items-center justify-center">
+              <i class="ri-wallet-3-line"></i>
+            </div>
+            Budgets
+          </a>
+          <a href="#" class="nav-item">
+            <div class="w-5 h-5 flex items-center justify-center">
+              <i class="ri-file-list-3-line"></i>
+            </div>
+            Expenses
+          </a>
+          <a href="#" class="nav-item">
+            <div class="w-5 h-5 flex items-center justify-center">
+              <i class="ri-shield-star-line"></i>
+            </div>
+            Upgrade
+          </a>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-1 p-8">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+          <div>
+            <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
+            <p class="text-gray-600">Track your expenses and manage budgets</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <button
+              class="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+            >
+              <div class="w-5 h-5 flex items-center justify-center">
+                <i class="ri-notification-3-line"></i>
+              </div>
+            </button>
+            <button
+              class="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+            >
+              <div class="w-5 h-5 flex items-center justify-center">
+                <i class="ri-user-line"></i>
+              </div>
+              John Doe
+            </button>
+          </div>
+        </header>
+
+        <!-- Activity Chart -->
+        <div class="bg-white rounded-lg p-6 mb-6 shadow-sm">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-lg font-semibold text-gray-900">Activity</h2>
+            <div class="flex gap-2">
+              <button
+                class="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded-full hover:bg-gray-200"
+              >
+                Week
+              </button>
+              <button
+                class="px-3 py-1 text-sm text-white bg-primary rounded-full"
+              >
+                Month
+              </button>
+              <button
+                class="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded-full hover:bg-gray-200"
+              >
+                Year
+              </button>
+            </div>
+          </div>
+          <div id="activityChart" class="h-80"></div>
+        </div>
+
+        <!-- Budget Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="flex items-center gap-4 mb-4">
+              <div
+                class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center"
+              >
+                <div class="w-6 h-6 flex items-center justify-center">
+                  <i class="ri-home-line text-primary"></i>
+                </div>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900">Home Decor</h3>
+                <p class="text-sm text-gray-600">1 Item</p>
+              </div>
+              <div class="ml-auto">
+                <span class="text-lg font-semibold text-primary">$3500</span>
+              </div>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-primary h-2 rounded-full" style="width: 45%"></div>
+            </div>
+            <div class="flex justify-between mt-2 text-sm">
+              <span class="text-gray-600">$1500 Spend</span>
+              <span class="text-gray-600">$2000 Remaining</span>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="flex items-center gap-4 mb-4">
+              <div
+                class="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center"
+              >
+                <div class="w-6 h-6 flex items-center justify-center">
+                  <i class="ri-plant-line text-secondary"></i>
+                </div>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900">Garden</h3>
+                <p class="text-sm text-gray-600">2 Items</p>
+              </div>
+              <div class="ml-auto">
+                <span class="text-lg font-semibold text-secondary">$1500</span>
+              </div>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div
+                class="bg-secondary h-2 rounded-full"
+                style="width: 25%"
+              ></div>
+            </div>
+            <div class="flex justify-between mt-2 text-sm">
+              <span class="text-gray-600">$320 Spend</span>
+              <span class="text-gray-600">$1180 Remaining</span>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="flex items-center gap-4 mb-4">
+              <div
+                class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center"
+              >
+                <div class="w-6 h-6 flex items-center justify-center">
+                  <i class="ri-car-line text-primary"></i>
+                </div>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900">
+                  Car Maintenance
+                </h3>
+                <p class="text-sm text-gray-600">1 Item</p>
+              </div>
+              <div class="ml-auto">
+                <span class="text-lg font-semibold text-primary">$2500</span>
+              </div>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-primary h-2 rounded-full" style="width: 15%"></div>
+            </div>
+            <div class="flex justify-between mt-2 text-sm">
+              <span class="text-gray-600">$120 Spend</span>
+              <span class="text-gray-600">$2380 Remaining</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="bg-white rounded-lg shadow-sm">
+          <div class="p-6 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">
+              Recent Transactions
+            </h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Name
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Amount
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Date
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    Source Code
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    $800
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    20/04/2024
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button class="text-red-500 hover:text-red-700">
+                      <div class="w-5 h-5 flex items-center justify-center">
+                        <i class="ri-delete-bin-line"></i>
+                      </div>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    Youtube Ads
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    $300
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    20/04/2024
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button class="text-red-500 hover:text-red-700">
+                      <div class="w-5 h-5 flex items-center justify-center">
+                        <i class="ri-delete-bin-line"></i>
+                      </div>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    Oil Change
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    $120
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    20/04/2024
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button class="text-red-500 hover:text-red-700">
+                      <div class="w-5 h-5 flex items-center justify-center">
+                        <i class="ri-delete-bin-line"></i>
+                      </div>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    Hanging Tree
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    $70
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    20/04/2024
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button class="text-red-500 hover:text-red-700">
+                      <div class="w-5 h-5 flex items-center justify-center">
+                        <i class="ri-delete-bin-line"></i>
+                      </div>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    Flower Tree
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    $250
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    20/04/2024
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button class="text-red-500 hover:text-red-700">
+                      <div class="w-5 h-5 flex items-center justify-center">
+                        <i class="ri-delete-bin-line"></i>
+                      </div>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const activityChart = echarts.init(document.getElementById("activityChart"));
+        const activityOption = {
+          animation: false,
+          tooltip: {
+            trigger: "axis",
+            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            textStyle: {
+              color: "#1f2937",
+            },
+          },
+          legend: {
+            data: ["totalSpend", "amount"],
+            textStyle: {
+              color: "#6B7280",
+            },
+          },
+          grid: {
+            left: "3%",
+            right: "4%",
+            bottom: "3%",
+            containLabel: true,
+          },
+          xAxis: {
+            type: "category",
+            data: ["Home Decor", "Garden", "Youtube Earning"],
+            axisLine: {
+              lineStyle: {
+                color: "#E5E7EB",
+              },
+            },
+            axisLabel: {
+              color: "#6B7280",
+            },
+          },
+          yAxis: {
+            type: "value",
+            max: 8000,
+            axisLine: {
+              lineStyle: {
+                color: "#E5E7EB",
+              },
+            },
+            axisLabel: {
+              color: "#6B7280",
+            },
+            splitLine: {
+              lineStyle: {
+                color: "#F3F4F6",
+              },
+            },
+          },
+          series: [
+            {
+              name: "totalSpend",
+              type: "bar",
+              data: [1500, 320, 1200],
+              itemStyle: {
+                color: "#00B4B4",
+              },
+            },
+            {
+              name: "amount",
+              type: "bar",
+              data: [3500, 1500, 6000],
+              itemStyle: {
+                color: "#E5E7EB",
+              },
+            },
+          ],
+        };
+        activityChart.setOption(activityOption);
+
+        window.addEventListener("resize", function () {
+          activityChart.resize();
+        });
+      });
+    </script>
+  </body>
+</html>

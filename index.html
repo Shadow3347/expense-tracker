@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ExpenseTracker - Manage Your Finances Smartly</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#00B4B4", secondary: "#8A2BE2" },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+          font-family: 'Inter', sans-serif;
+          background-color: #1A1A1A;
+          color: #E0E0E0;
+      }
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+      }
+      .gradient-text {
+          background: linear-gradient(90deg, #00B4B4, #8A2BE2);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+      }
+      .hero-gradient {
+          background: radial-gradient(circle at top right, #2D2D2D, #1A1A1A);
+      }
+      .feature-card:hover {
+          transform: translateY(-5px);
+      }
+      .custom-switch {
+          position: relative;
+          display: inline-block;
+          width: 48px;
+          height: 24px;
+      }
+      .custom-switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+      }
+      .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #2D2D2D;
+          transition: .3s;
+          border-radius: 34px;
+      }
+      .slider:before {
+          position: absolute;
+          content: "";
+          height: 18px;
+          width: 18px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          transition: .3s;
+          border-radius: 50%;
+      }
+      input:checked + .slider {
+          background-color: #00B4B4;
+      }
+      input:checked + .slider:before {
+          transform: translateX(24px);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-[#1A1A1A] shadow-lg">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex-shrink-0 flex items-center">
+            <a href="#" class="text-2xl font-['Pacifico'] text-white">logo</a>
+          </div>
+
+          <!-- Desktop Navigation -->
+          <div class="hidden md:flex items-center justify-center flex-1">
+            <div class="flex space-x-8">
+              <a
+                href="#dashboard"
+                class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300"
+                >Dashboard</a
+              >
+              <a
+                href="#add-expense"
+                class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300"
+                >Add Expense</a
+              >
+              <a
+                href="#groups"
+                class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300"
+                >Groups</a
+              >
+            </div>
+          </div>
+
+          <div class="hidden md:flex items-center space-x-4">
+            <button
+              class="text-white bg-transparent border border-gray-600 px-4 py-2 !rounded-button hover:border-primary transition-colors duration-300 whitespace-nowrap"
+            >
+              Sign In
+            </button>
+            <button
+              class="text-white bg-primary px-4 py-2 !rounded-button hover:bg-opacity-80 transition-colors duration-300 whitespace-nowrap"
+            >
+              Register
+            </button>
+          </div>
+
+          <!-- Mobile menu button -->
+          <div class="flex md:hidden items-center">
+            <button
+              type="button"
+              id="mobile-menu-button"
+              class="text-gray-300 hover:text-white p-2"
+            >
+              <div class="w-8 h-8 flex items-center justify-center">
+                <i class="ri-menu-line ri-lg"></i>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Navigation -->
+      <div id="mobile-menu" class="hidden md:hidden bg-[#1A1A1A] pb-3 px-4">
+        <div class="flex flex-col space-y-2">
+          <a
+            href="#dashboard"
+            class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium"
+            >Dashboard</a
+          >
+          <a
+            href="#add-expense"
+            class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium"
+            >Add Expense</a
+          >
+          <a
+            href="#groups"
+            class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium"
+            >Groups</a
+          >
+          <div class="flex flex-col space-y-2 pt-2 border-t border-gray-700">
+            <button
+              class="text-white bg-transparent border border-gray-600 px-4 py-2 !rounded-button hover:border-primary transition-colors duration-300 whitespace-nowrap"
+            >
+              Sign In
+            </button>
+            <button
+              class="text-white bg-primary px-4 py-2 !rounded-button hover:bg-opacity-80 transition-colors duration-300 whitespace-nowrap"
+            >
+              Register
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section
+      class="pt-24 pb-16 hero-gradient relative overflow-hidden"
+      style="background-image: url('https://readdy.ai/api/search-image?query=Modern%20abstract%20financial%20app%20interface%20with%20dark%20theme%2C%20teal%20and%20purple%20gradient%20elements%2C%20showing%20expense%20tracking%20charts%20and%20graphs%2C%20minimalist%20design%2C%20clean%20layout%2C%20high-quality%20render%20with%20soft%20lighting%20and%20subtle%20texture&width=1920&height=1080&seq=123456&orientation=landscape'); background-size: cover; background-position: center right;"
+    >
+      <div
+        class="absolute inset-0 bg-gradient-to-r from-[#1A1A1A] to-transparent"
+      ></div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="w-full md:w-1/2 py-16">
+          <h1
+            class="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
+          >
+            Track Expenses <span class="text-secondary">Smarter</span>, Save
+            <span class="text-primary">Better</span>
+          </h1>
+          <p class="text-xl text-gray-300 mb-8">
+            The all-in-one solution to manage your finances, split bills with
+            friends, and visualize your spending habits.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4">
+            <button
+              class="bg-primary text-white px-8 py-3 !rounded-button hover:bg-opacity-80 transition-all duration-300 font-medium whitespace-nowrap"
+            >
+              Get Started Free
+            </button>
+            <button
+              class="bg-transparent border border-white text-white px-8 py-3 !rounded-button hover:border-primary transition-all duration-300 font-medium whitespace-nowrap"
+            >
+              <div class="flex items-center justify-center gap-2">
+                <div class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-play-circle-line"></i>
+                </div>
+                <span>Watch Demo</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 bg-[#1A1A1A]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4">
+            Why Choose Our <span class="gradient-text">Expense Tracker</span>
+          </h2>
+          <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+            Powerful features designed to simplify your financial management and
+            help you save more.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- Feature 1 -->
+          <div
+            class="bg-[#2D2D2D] rounded-lg p-8 shadow-lg transition-all duration-300 feature-card"
+          >
+            <div
+              class="w-12 h-12 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center mb-6"
+            >
+              <div class="w-6 h-6 flex items-center justify-center text-white">
+                <i class="ri-pie-chart-line"></i>
+              </div>
+            </div>
+            <h3 class="text-xl font-semibold mb-3 text-white">
+              Smart Analytics
+            </h3>
+            <p class="text-gray-400">
+              Visualize your spending patterns with interactive charts and get
+              personalized insights to improve your financial habits.
+            </p>
+          </div>
+
+          <!-- Feature 2 -->
+          <div
+            class="bg-[#2D2D2D] rounded-lg p-8 shadow-lg transition-all duration-300 feature-card"
+          >
+            <div
+              class="w-12 h-12 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center mb-6"
+            >
+              <div class="w-6 h-6 flex items-center justify-center text-white">
+                <i class="ri-group-line"></i>
+              </div>
+            </div>
+            <h3 class="text-xl font-semibold mb-3 text-white">
+              Group Expenses
+            </h3>
+            <p class="text-gray-400">
+              Split bills effortlessly with friends, roommates, or family. Keep
+              track of who owes what with automatic calculations.
+            </p>
+          </div>
+
+          <!-- Feature 3 -->
+          <div
+            class="bg-[#2D2D2D] rounded-lg p-8 shadow-lg transition-all duration-300 feature-card"
+          >
+            <div
+              class="w-12 h-12 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center mb-6"
+            >
+              <div class="w-6 h-6 flex items-center justify-center text-white">
+                <i class="ri-notification-line"></i>
+              </div>
+            </div>
+            <h3 class="text-xl font-semibold mb-3 text-white">Budget Alerts</h3>
+            <p class="text-gray-400">
+              Set custom budget limits and receive notifications when you're
+              approaching your spending thresholds.
+            </p>
+          </div>
+
+          <!-- Feature 4 -->
+          <div
+            class="bg-[#2D2D2D] rounded-lg p-8 shadow-lg transition-all duration-300 feature-card"
+          >
+            <div
+              class="w-12 h-12 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center mb-6"
+            >
+              <div class="w-6 h-6 flex items-center justify-center text-white">
+                <i class="ri-bank-card-line"></i>
+              </div>
+            </div>
+            <h3 class="text-xl font-semibold mb-3 text-white">
+              Multi-Currency Support
+            </h3>
+            <p class="text-gray-400">
+              Track expenses in multiple currencies with automatic conversion
+              based on the latest exchange rates.
+            </p>
+          </div>
+
+          <!-- Feature 5 -->
+          <div
+            class="bg-[#2D2D2D] rounded-lg p-8 shadow-lg transition-all duration-300 feature-card"
+          >
+            <div
+              class="w-12 h-12 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center mb-6"
+            >
+              <div class="w-6 h-6 flex items-center justify-center text-white">
+                <i class="ri-camera-line"></i>
+              </div>
+            </div>
+            <h3 class="text-xl font-semibold mb-3 text-white">
+              Receipt Scanning
+            </h3>
+            <p class="text-gray-400">
+              Capture receipts with your camera and let our AI extract and
+              categorize expense details automatically.
+            </p>
+          </div>
+
+          <!-- Feature 6 -->
+          <div
+            class="bg-[#2D2D2D] rounded-lg p-8 shadow-lg transition-all duration-300 feature-card"
+          >
+            <div
+              class="w-12 h-12 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center mb-6"
+            >
+              <div class="w-6 h-6 flex items-center justify-center text-white">
+                <i class="ri-secure-payment-line"></i>
+              </div>
+            </div>
+            <h3 class="text-xl font-semibold mb-3 text-white">
+              Secure Cloud Sync
+            </h3>
+            <p class="text-gray-400">
+              Access your financial data from any device with secure cloud
+              synchronization and bank-level encryption.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="py-20 bg-[#2D2D2D]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4">
+            Trusted by <span class="gradient-text">Thousands</span>
+          </h2>
+          <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+            Join our growing community of users who are taking control of their
+            finances.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+          <!-- Stat 1 -->
+          <div class="bg-[#1A1A1A] rounded-lg p-8 shadow-lg text-center">
+            <h3 class="text-4xl font-bold text-primary mb-2 counter">
+              50,000+
+            </h3>
+            <p class="text-gray-400">Active Users</p>
+          </div>
+
+          <!-- Stat 2 -->
+          <div class="bg-[#1A1A1A] rounded-lg p-8 shadow-lg text-center">
+            <h3 class="text-4xl font-bold text-primary mb-2 counter">$2.5M+</h3>
+            <p class="text-gray-400">Expenses Tracked Monthly</p>
+          </div>
+
+          <!-- Stat 3 -->
+          <div class="bg-[#1A1A1A] rounded-lg p-8 shadow-lg text-center">
+            <h3 class="text-4xl font-bold text-primary mb-2 counter">4.8/5</h3>
+            <p class="text-gray-400">Average Rating</p>
+          </div>
+
+          <!-- Stat 4 -->
+          <div class="bg-[#1A1A1A] rounded-lg p-8 shadow-lg text-center">
+            <h3 class="text-4xl font-bold text-primary mb-2 counter">25%</h3>
+            <p class="text-gray-400">Average Savings</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Chart 1 -->
+          <div class="bg-[#1A1A1A] rounded-lg p-6 shadow-lg">
+            <h3 class="text-xl font-semibold mb-4 text-white">
+              Monthly Spending by Category
+            </h3>
+            <div id="categoryChart" class="w-full h-80"></div>
+          </div>
+
+          <!-- Chart 2 -->
+          <div class="bg-[#1A1A1A] rounded-lg p-6 shadow-lg">
+            <h3 class="text-xl font-semibold mb-4 text-white">
+              Savings Growth
+            </h3>
+            <div id="savingsChart" class="w-full h-80"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mobile Preview -->
+    <section class="py-20 bg-[#1A1A1A] relative overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="flex flex-col md:flex-row items-center">
+          <div class="md:w-1/2 mb-12 md:mb-0">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">
+              Take Control on the Go
+            </h2>
+            <p class="text-xl text-gray-400 mb-8">
+              Our mobile app gives you the power to track expenses, split bills,
+              and manage your finances anywhere, anytime.
+            </p>
+
+            <div class="space-y-6">
+              <div class="flex items-start">
+                <div
+                  class="w-10 h-10 flex items-center justify-center bg-primary bg-opacity-10 rounded-full mr-4"
+                >
+                  <div
+                    class="w-5 h-5 flex items-center justify-center text-primary"
+                  >
+                    <i class="ri-check-line"></i>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="text-lg font-medium text-white mb-1">
+                    Real-time Synchronization
+                  </h3>
+                  <p class="text-gray-400">
+                    All your data syncs instantly across all your devices.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start">
+                <div
+                  class="w-10 h-10 flex items-center justify-center bg-primary bg-opacity-10 rounded-full mr-4"
+                >
+                  <div
+                    class="w-5 h-5 flex items-center justify-center text-primary"
+                  >
+                    <i class="ri-check-line"></i>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="text-lg font-medium text-white mb-1">
+                    Offline Mode
+                  </h3>
+                  <p class="text-gray-400">
+                    Add expenses even without internet connection.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start">
+                <div
+                  class="w-10 h-10 flex items-center justify-center bg-primary bg-opacity-10 rounded-full mr-4"
+                >
+                  <div
+                    class="w-5 h-5 flex items-center justify-center text-primary"
+                  >
+                    <i class="ri-check-line"></i>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="text-lg font-medium text-white mb-1">
+                    Biometric Authentication
+                  </h3>
+                  <p class="text-gray-400">
+                    Secure access with fingerprint or face recognition.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-10 flex space-x-6">
+              <a
+                href="#"
+                class="flex items-center bg-white bg-opacity-10 hover:bg-opacity-20 transition-all duration-300 px-4 py-2 rounded-lg"
+              >
+                <div class="w-6 h-6 flex items-center justify-center mr-2">
+                  <i class="ri-apple-fill"></i>
+                </div>
+                <span>App Store</span>
+              </a>
+              <a
+                href="#"
+                class="flex items-center bg-white bg-opacity-10 hover:bg-opacity-20 transition-all duration-300 px-4 py-2 rounded-lg"
+              >
+                <div class="w-6 h-6 flex items-center justify-center mr-2">
+                  <i class="ri-google-play-fill"></i>
+                </div>
+                <span>Google Play</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="md:w-1/2 flex justify-center">
+            <div class="relative w-72 h-[600px]">
+              <div
+                class="absolute inset-0 bg-gradient-to-b from-primary to-secondary opacity-10 rounded-[40px]"
+              ></div>
+              <div
+                class="absolute inset-2 bg-[#1A1A1A] rounded-[36px] overflow-hidden border-4 border-[#2D2D2D]"
+              >
+                <img
+                  src="https://readdy.ai/api/search-image?query=Dark%20mode%20mobile%20app%20interface%20for%20expense%20tracking%20with%20teal%20and%20purple%20accents%2C%20showing%20expense%20categories%2C%20charts%2C%20and%20transaction%20history%20in%20a%20clean%20modern%20UI%20design%20with%20realistic%20screen%20details&width=400&height=800&seq=123457&orientation=portrait"
+                  alt="Mobile App Interface"
+                  class="w-full h-full object-cover object-top"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-gradient-to-r from-primary to-secondary">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+          Ready to Take Control of Your Finances?
+        </h2>
+        <p class="text-xl text-white text-opacity-90 max-w-3xl mx-auto mb-10">
+          Join thousands of users who are saving money and managing expenses
+          more efficiently.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+          <button
+            class="bg-white text-primary px-8 py-3 !rounded-button hover:bg-opacity-90 transition-all duration-300 font-medium whitespace-nowrap"
+          >
+            Create Free Account
+          </button>
+          <button
+            class="bg-transparent border border-white text-white px-8 py-3 !rounded-button hover:bg-white hover:bg-opacity-10 transition-all duration-300 font-medium whitespace-nowrap"
+          >
+            Learn More
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[#1A1A1A] pt-16 pb-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+          <div>
+            <a
+              href="#"
+              class="text-2xl font-['Pacifico'] text-white mb-4 inline-block"
+              >logo</a
+            >
+            <p class="text-gray-400 mb-6">
+              The smart way to track expenses, split bills, and save money.
+            </p>
+            <div class="flex space-x-4">
+              <a
+                href="#"
+                class="w-10 h-10 rounded-full bg-[#2D2D2D] flex items-center justify-center text-gray-400 hover:text-white hover:bg-primary transition-colors duration-300"
+              >
+                <div class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-twitter-x-line"></i>
+                </div>
+              </a>
+              <a
+                href="#"
+                class="w-10 h-10 rounded-full bg-[#2D2D2D] flex items-center justify-center text-gray-400 hover:text-white hover:bg-primary transition-colors duration-300"
+              >
+                <div class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-facebook-fill"></i>
+                </div>
+              </a>
+              <a
+                href="#"
+                class="w-10 h-10 rounded-full bg-[#2D2D2D] flex items-center justify-center text-gray-400 hover:text-white hover:bg-primary transition-colors duration-300"
+              >
+                <div class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-instagram-line"></i>
+                </div>
+              </a>
+              <a
+                href="#"
+                class="w-10 h-10 rounded-full bg-[#2D2D2D] flex items-center justify-center text-gray-400 hover:text-white hover:bg-primary transition-colors duration-300"
+              >
+                <div class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-linkedin-fill"></i>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-white mb-6">Quick Links</h3>
+            <ul class="space-y-3">
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-400 hover:text-primary transition-colors duration-300"
+                  >Dashboard</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-400 hover:text-primary transition-colors duration-300"
+                  >Add Expense</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-400 hover:text-primary transition-colors duration-300"
+                  >Groups</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-400 hover:text-primary transition-colors duration-300"
+                  >Reports</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-400 hover:text-primary transition-colors duration-300"
+                  >Settings</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-white mb-6">Company</h3>
+            <ul class="space-y-3">
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-400 hover:text-primary transition-colors duration-300"
+                  >About Us</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-400 hover:text-primary transition-colors duration-300"
+                  >Careers</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-400 hover:text-primary transition-colors duration-300"
+                  >Blog</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-400 hover:text-primary transition-colors duration-300"
+                  >Press</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-400 hover:text-primary transition-colors duration-300"
+                  >Contact</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-white mb-6">Subscribe</h3>
+            <p class="text-gray-400 mb-4">Get the latest updates and offers.</p>
+            <form class="mb-4">
+              <div class="flex">
+                <input
+                  type="email"
+                  placeholder="Your email"
+                  class="bg-[#2D2D2D] text-white px-4 py-3 !rounded-l-button border-none focus:outline-none focus:ring-2 focus:ring-primary w-full"
+                />
+                <button
+                  type="submit"
+                  class="bg-primary text-white px-4 py-3 !rounded-r-button hover:bg-opacity-80 transition-colors duration-300 whitespace-nowrap"
+                >
+                  <div class="w-5 h-5 flex items-center justify-center">
+                    <i class="ri-send-plane-line"></i>
+                  </div>
+                </button>
+              </div>
+            </form>
+            <div class="flex items-center space-x-4">
+              <div class="w-8 h-8 flex items-center justify-center">
+                <i class="ri-visa-line text-gray-400 ri-lg"></i>
+              </div>
+              <div class="w-8 h-8 flex items-center justify-center">
+                <i class="ri-mastercard-line text-gray-400 ri-lg"></i>
+              </div>
+              <div class="w-8 h-8 flex items-center justify-center">
+                <i class="ri-paypal-line text-gray-400 ri-lg"></i>
+              </div>
+              <div class="w-8 h-8 flex items-center justify-center">
+                <i class="ri-apple-fill text-gray-400 ri-lg"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-[#2D2D2D] pt-8">
+          <div class="flex flex-col md:flex-row justify-between items-center">
+            <p class="text-gray-500 mb-4 md:mb-0">
+              © 2025 ExpenseTracker. All rights reserved.
+            </p>
+            <div class="flex space-x-6">
+              <a
+                href="#"
+                class="text-gray-500 hover:text-primary transition-colors duration-300"
+                >Terms</a
+              >
+              <a
+                href="#"
+                class="text-gray-500 hover:text-primary transition-colors duration-300"
+                >Privacy</a
+              >
+              <a
+                href="#"
+                class="text-gray-500 hover:text-primary transition-colors duration-300"
+                >Cookies</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Mobile Menu Toggle
+      document.addEventListener("DOMContentLoaded", function () {
+        const mobileMenuButton = document.getElementById("mobile-menu-button");
+        const mobileMenu = document.getElementById("mobile-menu");
+
+        mobileMenuButton.addEventListener("click", function () {
+          mobileMenu.classList.toggle("hidden");
+        });
+      });
+
+      // Category Chart
+      document.addEventListener("DOMContentLoaded", function () {
+        const categoryChart = echarts.init(document.getElementById("categoryChart"));
+
+        const categoryOption = {
+          animation: false,
+          tooltip: {
+            trigger: "item",
+            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            textStyle: {
+              color: "#1f2937",
+            },
+          },
+          legend: {
+            orient: "vertical",
+            right: 10,
+            top: "center",
+            textStyle: {
+              color: "#E0E0E0",
+            },
+          },
+          series: [
+            {
+              name: "Spending",
+              type: "pie",
+              radius: ["40%", "70%"],
+              avoidLabelOverlap: false,
+              itemStyle: {
+                borderRadius: 8,
+              },
+              label: {
+                show: false,
+              },
+              emphasis: {
+                label: {
+                  show: true,
+                  fontSize: 14,
+                  fontWeight: "bold",
+                  color: "#FFFFFF",
+                },
+              },
+              labelLine: {
+                show: false,
+              },
+              data: [
+                {
+                  value: 35,
+                  name: "Food & Dining",
+                  itemStyle: { color: "rgba(87, 181, 231, 1)" },
+                },
+                {
+                  value: 20,
+                  name: "Housing",
+                  itemStyle: { color: "rgba(141, 211, 199, 1)" },
+                },
+                {
+                  value: 15,
+                  name: "Transportation",
+                  itemStyle: { color: "rgba(251, 191, 114, 1)" },
+                },
+                {
+                  value: 30,
+                  name: "Entertainment",
+                  itemStyle: { color: "rgba(252, 141, 98, 1)" },
+                },
+              ],
+            },
+          ],
+        };
+
+        categoryChart.setOption(categoryOption);
+
+        window.addEventListener("resize", function () {
+          categoryChart.resize();
+        });
+      });
+
+      // Savings Chart
+      document.addEventListener("DOMContentLoaded", function () {
+        const savingsChart = echarts.init(document.getElementById("savingsChart"));
+
+        const savingsOption = {
+          animation: false,
+          tooltip: {
+            trigger: "axis",
+            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            textStyle: {
+              color: "#1f2937",
+            },
+          },
+          grid: {
+            left: "3%",
+            right: "4%",
+            bottom: "3%",
+            top: "3%",
+            containLabel: true,
+          },
+          xAxis: {
+            type: "category",
+            boundaryGap: false,
+            data: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            axisLine: {
+              lineStyle: {
+                color: "#666",
+              },
+            },
+            axisLabel: {
+              color: "#E0E0E0",
+            },
+          },
+          yAxis: {
+            type: "value",
+            axisLine: {
+              lineStyle: {
+                color: "#666",
+              },
+            },
+            axisLabel: {
+              color: "#E0E0E0",
+              formatter: "${value}",
+            },
+            splitLine: {
+              lineStyle: {
+                color: "rgba(255, 255, 255, 0.1)",
+              },
+            },
+          },
+          series: [
+            {
+              name: "Expenses",
+              type: "line",
+              stack: "Total",
+              smooth: true,
+              lineStyle: {
+                width: 3,
+                color: "rgba(252, 141, 98, 1)",
+              },
+              areaStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  {
+                    offset: 0,
+                    color: "rgba(252, 141, 98, 0.2)",
+                  },
+                  {
+                    offset: 1,
+                    color: "rgba(252, 141, 98, 0.0)",
+                  },
+                ]),
+              },
+              emphasis: {
+                focus: "series",
+              },
+              data: [1200, 1350, 1100, 1500, 1300, 1450],
+            },
+            {
+              name: "Savings",
+              type: "line",
+              stack: "Total",
+              smooth: true,
+              lineStyle: {
+                width: 3,
+                color: "rgba(87, 181, 231, 1)",
+              },
+              areaStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  {
+                    offset: 0,
+                    color: "rgba(87, 181, 231, 0.2)",
+                  },
+                  {
+                    offset: 1,
+                    color: "rgba(87, 181, 231, 0.0)",
+                  },
+                ]),
+              },
+              emphasis: {
+                focus: "series",
+              },
+              data: [200, 250, 300, 350, 400, 500],
+            },
+          ],
+        };
+
+        savingsChart.setOption(savingsOption);
+
+        window.addEventListener("resize", function () {
+          savingsChart.resize();
+        });
+      });
+    </script>
+  </body>
+</html> -->
